@@ -1,0 +1,30 @@
+[
+    {
+        "order_id": "63679E4F",
+        "email": "ayeshanazeer.8801@gmail.com",
+        "username": "ayesha",
+        "items": {
+            "apple": 95.0
+        },
+        "subtotal": 9500.0,
+        "discount_amount": 1425.0,
+        "tax_amount": 403.75,
+        "total": 8478.75,
+        "status": "pending",
+        "date": "2025-09-27T01:21:05.542346"
+    },
+    {
+        "order_id": "63649E4F",
+        "email": "ayeshanazeer.8801@gmail.com",
+        "username": "ayesha",
+        "items": {
+            "apple": 95.0
+        },
+        "subtotal": 9500.0,
+        "discount_amount": 1425.0,
+        "tax_amount": 403.75,
+        "total": 8478.75,
+        "status": "delivered",
+        "date": "2025-09-27T01:21:05.542346"
+    }
+]

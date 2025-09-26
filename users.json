@@ -1,0 +1,14 @@
+{
+    "admin@grocery.com": {
+        "username": "Admin",
+        "password": "$2a$12$Gv.SiLx.fu.gmtTwALffwO9xpCXfS.lQIkqYqS5Nj7GmeJIe.dSSK",
+        "role": "admin",
+        "created_at": "2024-01-01T00:00:00"
+    },
+    "ayeshanazeer.8801@gmail.com": {
+        "username": "ayesha",
+        "password": "$2b$12$eKTN39jhVQnx8tAiOFrmrOAuuJgHaCahuh7KccIHtKv0.adJx0RN6",
+        "role": "user",
+        "created_at": "2025-09-27T01:12:24.005714"
+    }
+}

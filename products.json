@@ -1,0 +1,22 @@
+{
+    "apple": {
+        "price": 100,
+        "unit": "kg"
+    },
+    "banana": {
+        "price": 50,
+        "unit": "dozen"
+    },
+    "milk": {
+        "price": 120,
+        "unit": "litre"
+    },
+    "bread": {
+        "price": 80,
+        "unit": "loaf"
+    },
+    "mango": {
+        "price": 240.0,
+        "unit": "kg"
+    }
+}
