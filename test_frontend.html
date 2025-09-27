@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Store API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .api-status {
+            background: #e8f5e8;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        .status-success {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #4CAF50;
+        }
+        
+        .tab:hover {
+            background: #e8f5e8;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .response {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .response.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .response.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .card h3 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background: white;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .product-price {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .product-unit {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .order-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .order-id {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .order-details {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛒 Grocery Store API Tester</h1>
+            <p>Test your deployed API at https://api-tau-orcin.vercel.app/</p>
+        </div>
+        
+        <div class="api-status" id="apiStatus">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Checking API connection...</p>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('users')">👥 Users</button>
+            <button class="tab" onclick="showTab('products')">🛍️ Products</button>
+            <button class="tab" onclick="showTab('orders')">📦 Orders</button>
+            <button class="tab" onclick="showTab('test')">🧪 Test All</button>
+        </div>
+        
+        <!-- Users Tab -->
+        <div id="users" class="tab-content active">
+            <h2>User Management</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Register New User</h3>
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label for="regUsername">Username:</label>
+                            <input type="text" id="regUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">Email:</label>
+                            <input type="email" id="regEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regPassword">Password:</label>
+                            <input type="password" id="regPassword" required>
+                        </div>
+                        <button type="submit" class="btn">Register User</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>Login</h3>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="loginEmail">Email:</label>
+                            <input type="email" id="loginEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password:</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn">Login</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>All Users</h3>
+                <button class="btn btn-secondary" onclick="loadUsers()">Load Users</button>
+                <div id="usersList"></div>
+            </div>
+        </div>
+        
+        <!-- Products Tab -->
+        <div id="products" class="tab-content">
+            <h2>Product Management</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Add New Product</h3>
+                    <form id="productForm">
+                        <div class="form-group">
+                            <label for="productName">Product Name:</label>
+                            <input type="text" id="productName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productPrice">Price:</label>
+                            <input type="number" id="productPrice" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productUnit">Unit:</label>
+                            <input type="text" id="productUnit" placeholder="kg, piece, litre, etc." required>
+                        </div>
+                        <button type="submit" class="btn">Add Product</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>Update Product</h3>
+                    <form id="updateProductForm">
+                        <div class="form-group">
+                            <label for="updateProductName">Product Name:</label>
+                            <input type="text" id="updateProductName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateProductPrice">New Price:</label>
+                            <input type="number" id="updateProductPrice" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateProductUnit">New Unit:</label>
+                            <input type="text" id="updateProductUnit" required>
+                        </div>
+                        <button type="submit" class="btn btn-secondary">Update Product</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Products List</h3>
+                <button class="btn btn-secondary" onclick="loadProducts()">Load Products</button>
+                <button class="btn btn-danger" onclick="deleteProduct()">Delete Product</button>
+                <div id="productsList"></div>
+            </div>
+        </div>
+        
+        <!-- Orders Tab -->
+        <div id="orders" class="tab-content">
+            <h2>Order Management</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Create New Order</h3>
+                    <form id="orderForm">
+                        <div class="form-group">
+                            <label for="orderEmail">Email:</label>
+                            <input type="email" id="orderEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="orderUsername">Username:</label>
+                            <input type="text" id="orderUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="orderItems">Items (JSON format):</label>
+                            <textarea id="orderItems" rows="3" placeholder='{"apple": 2, "banana": 1}' required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="orderSubtotal">Subtotal:</label>
+                            <input type="number" id="orderSubtotal" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="orderDiscount">Discount Amount:</label>
+                            <input type="number" id="orderDiscount" step="0.01" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="orderTax">Tax Amount:</label>
+                            <input type="number" id="orderTax" step="0.01" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="orderTotal">Total:</label>
+                            <input type="number" id="orderTotal" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn">Create Order</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>Update Order Status</h3>
+                    <form id="updateOrderForm">
+                        <div class="form-group">
+                            <label for="updateOrderId">Order ID:</label>
+                            <input type="text" id="updateOrderId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateOrderStatus">New Status:</label>
+                            <select id="updateOrderStatus" required>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-secondary">Update Status</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>All Orders</h3>
+                <button class="btn btn-secondary" onclick="loadOrders()">Load Orders</button>
+                <div id="ordersList"></div>
+            </div>
+        </div>
+        
+        <!-- Test All Tab -->
+        <div id="test" class="tab-content">
+            <h2>API Testing Suite</h2>
+            <div class="card">
+                <h3>Run All Tests</h3>
+                <p>This will test all API endpoints and show the results.</p>
+                <button class="btn" onclick="runAllTests()">Run All Tests</button>
+                <div id="testResults"></div>
+            </div>
+        </div>
+        
+        <div id="response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api-tau-orcin.vercel.app';
+        let currentUser = null;
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            checkApiStatus();
+            setupEventListeners();
+        });
+        
+        // Check API status
+        async function checkApiStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                const data = await response.json();
+                
+                const statusDiv = document.getElementById('apiStatus');
+                if (data.success) {
+                    statusDiv.innerHTML = `
+                        <div class="status-success">
+                            ✅ API Connected Successfully!<br>
+                            <small>Status: ${data.status} | Message: ${data.message}</small>
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <div style="color: #dc3545;">
+                            ❌ API Connection Failed
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('apiStatus').innerHTML = `
+                    <div style="color: #dc3545;">
+                        ❌ API Connection Failed: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('productForm').addEventListener('submit', handleAddProduct);
+            document.getElementById('updateProductForm').addEventListener('submit', handleUpdateProduct);
+            document.getElementById('orderForm').addEventListener('submit', handleCreateOrder);
+            document.getElementById('updateOrderForm').addEventListener('submit', handleUpdateOrder);
+        }
+        
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        // Show response
+        function showResponse(data, isError = false) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.style.display = 'block';
+            responseDiv.className = `response ${isError ? 'error' : 'success'}`;
+            responseDiv.textContent = JSON.stringify(data, null, 2);
+        }
+        
+        // User Management
+        async function handleRegister(e) {
+            e.preventDefault();
+            const formData = {
+                username: document.getElementById('regUsername').value,
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPassword').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                showResponse(data, !response.ok);
+                
+                if (response.ok) {
+                    document.getElementById('registerForm').reset();
+                }
+            } catch (error) {
+                showResponse({error: error.message}, true);
+            }
+        }
+        
+        async function handleLogin(e) {
+            e.preventDefault();
+            const formData = {
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                showResponse(data, !response.ok);
+                
+                if (response.ok) {
+                    currentUser = data;
+                    showResponse({...data, message: 'Login successful!'}, false);
+                }
+            } catch (error) {
+                showResponse({error: error.message}, true);
+            }
+        }
+        
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/users`);
+                const data = await response.json();
+                showResponse(data, !response.ok);
+                
+                if (response.ok) {
+                    const usersList = document.getElementById('usersList');
+                    usersList.innerHTML = '<h4>Users:</h4>';
+                    
+                    if (data.users && Object.keys(data.users).length > 0) {
+                        Object.entries(data.users).forEach(([email, user]) => {
+                            usersList.innerHTML += `
+                                <div style="padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px;">
+                                    <strong>${user.username}</strong> (${email})<br>
+                                    <small>Role: ${user.role} | Created: ${user.created_at}</small>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        usersList.innerHTML += '<p>No users found.</p>';
+                    }
+                }
+            } catch (error) {
+                showResponse({error: error.message}, true);
+            }
+        }
+        
+        // Product Management
+        async function handleAddProduct(e) {
+            e.preventDefault();
+            const formData = {
+                name: document.getElementById('productName').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                unit: document.getElementById('productUnit').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                showResponse(data, !response.ok);
+                
+                if (response.ok) {
+                    document.getElementById('productForm').reset();
+                    loadProducts();
+                }
+            } catch (error) {
+                showResponse({error: error.message}, true);
+            }
+        }
+        
+        async function handleUpdateProduct(e) {
+            e.preventDefault();
+            const name = document.getElementById('updateProductName').value;
+            const formData = {
+                price: parseFloat(document.getElementById('updateProductPrice').value),
+                unit: document.getElementById('updateProductUnit').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/products/${encodeURIComponent(name)}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                showResponse(data, !response.ok);
+                
+                if (response.ok) {
+                    document.getElementById('updateProductForm').reset();
+                    loadProducts();
+                }
+            } catch (error) {
+                showResponse({error: error.message}, true);
+            }
+        }
+        
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/products`);
+                const data = await response.json();
+                showResponse(data, !response.ok);
+                
+                if (response.ok) {
+                    const productsList = document.getElementById('productsList');
+                    productsList.innerHTML = '<h4>Products:</h4>';
+                    
+                    if (data && Object.keys(data).length > 0) {
+                        Object.entries(data).forEach(([name, product]) => {
+                            productsList.innerHTML += `
+                                <div class="product-item">
+                                    <div class="product-info">
+                                        <div class="product-name">${name}</div>
+                                        <div class="product-price">$${product.price}</div>
+                                        <div class="product-unit">per ${product.unit}</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        productsList.innerHTML += '<p>No products found.</p>';
+                    }
+                }
+            } catch (error) {
+                showResponse({error: error.message}, true);
+            }
+        }
+        
+        async function deleteProduct() {
+            const name = prompt('Enter product name to delete:');
+            if (!name) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/products/${encodeURIComponent(name)}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                showResponse(data, !response.ok);
+                
+                if (response.ok) {
+                    loadProducts();
+                }
+            } catch (error) {
+                showResponse({error: error.message}, true);
+            }
+        }
+        
+        // Order Management
+        async function handleCreateOrder(e) {
+            e.preventDefault();
+            const formData = {
+                order_id: 'ORD' + Date.now(),
+                email: document.getElementById('orderEmail').value,
+                username: document.getElementById('orderUsername').value,
+                items: JSON.parse(document.getElementById('orderItems').value),
+                subtotal: parseFloat(document.getElementById('orderSubtotal').value),
+                discount_amount: parseFloat(document.getElementById('orderDiscount').value),
+                tax_amount: parseFloat(document.getElementById('orderTax').value),
+                total: parseFloat(document.getElementById('orderTotal').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                showResponse(data, !response.ok);
+                
+                if (response.ok) {
+                    document.getElementById('orderForm').reset();
+                    loadOrders();
+                }
+            } catch (error) {
+                showResponse({error: error.message}, true);
+            }
+        }
+        
+        async function handleUpdateOrder(e) {
+            e.preventDefault();
+            const orderId = document.getElementById('updateOrderId').value;
+            const formData = {
+                status: document.getElementById('updateOrderStatus').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/orders/${orderId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                showResponse(data, !response.ok);
+                
+                if (response.ok) {
+                    document.getElementById('updateOrderForm').reset();
+                    loadOrders();
+                }
+            } catch (error) {
+                showResponse({error: error.message}, true);
+            }
+        }
+        
+        async function loadOrders() {
+            try {
+                const response = await fetch(`${API_BASE}/orders`);
+                const data = await response.json();
+                showResponse(data, !response.ok);
+                
+                if (response.ok) {
+                    const ordersList = document.getElementById('ordersList');
+                    ordersList.innerHTML = '<h4>Orders:</h4>';
+                    
+                    if (data && data.length > 0) {
+                        data.forEach(order => {
+                            ordersList.innerHTML += `
+                                <div class="order-item">
+                                    <div class="order-header">
+                                        <span class="order-id">${order.order_id}</span>
+                                        <span class="order-status status-${order.status}">${order.status}</span>
+                                    </div>
+                                    <div class="order-details">
+                                        <strong>Customer:</strong> ${order.username} (${order.email})<br>
+                                        <strong>Total:</strong> $${order.total} | <strong>Date:</strong> ${new Date(order.date).toLocaleString()}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        ordersList.innerHTML += '<p>No orders found.</p>';
+                    }
+                }
+            } catch (error) {
+                showResponse({error: error.message}, true);
+            }
+        }
+        
+        // Test All Functions
+        async function runAllTests() {
+            const testResults = document.getElementById('testResults');
+            testResults.innerHTML = '<div class="loading"><div class="spinner"></div><p>Running tests...</p></div>';
+            
+            const tests = [
+                { name: 'API Health Check', fn: () => fetch(`${API_BASE}/health`) },
+                { name: 'Get Products', fn: () => fetch(`${API_BASE}/products`) },
+                { name: 'Get Users', fn: () => fetch(`${API_BASE}/users`) },
+                { name: 'Get Orders', fn: () => fetch(`${API_BASE}/orders`) }
+            ];
+            
+            let results = [];
+            
+            for (const test of tests) {
+                try {
+                    const response = await test.fn();
+                    const data = await response.json();
+                    results.push({
+                        name: test.name,
+                        status: response.ok ? 'PASS' : 'FAIL',
+                        response: data
+                    });
+                } catch (error) {
+                    results.push({
+                        name: test.name,
+                        status: 'ERROR',
+                        error: error.message
+                    });
+                }
+            }
+            
+            testResults.innerHTML = '<h4>Test Results:</h4>';
+            results.forEach(result => {
+                const statusClass = result.status === 'PASS' ? 'success' : 'error';
+                testResults.innerHTML += `
+                    <div class="response ${statusClass}">
+                        <strong>${result.name}:</strong> ${result.status}
+                        ${result.error ? `<br>Error: ${result.error}` : ''}
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
