@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import json
 import os
 import bcrypt
@@ -6,7 +8,24 @@ from email_validator import validate_email, EmailNotValidError
 from datetime import datetime
 from pydantic import BaseModel
 
-app = FastAPI() 
+app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
+# Global exception handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"success": False, "detail": f"Internal server error: {str(exc)}"}
+    ) 
 
 USERS_FILE = "users.json"
 PRODUCTS_FILE = "products.json"
@@ -56,9 +75,21 @@ class OrderUpdate(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to Grocery Store API! Docs at /docs"}
+    return {
+        "success": True,
+        "message": "Welcome to Grocery Store API!",
+        "docs": "/docs",
+        "status": "running"
+    }
 
-@app.get("/users")
+@app.get("/health")
+def health_check():
+    return {
+        "success": True,
+        "status": "healthy",
+        "message": "API is running"
+    }
+
 def get_users():
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE, "r") as f:
@@ -66,35 +97,56 @@ def get_users():
             return users
     return {}
 
+@app.get("/users")
+def get_users_endpoint():
+    try:
+        users = get_users()
+        return {"success": True, "users": users}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error reading users: {str(e)}")
+
 @app.post("/users")
 def create_user(user: User):
-    users = get_users()
-    if user.email in users:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    if not validate_email_format(user.email):
-        raise HTTPException(status_code=400, detail="Invalid email format")
-    hashed = hash_password(user.password)
-    users[user.email] = {
-        "username": user.username,
-        "password": hashed.decode('utf-8'),
-        "role": "user",
-        "created_at": datetime.now().isoformat()
-    }
-    with open(USERS_FILE, "w") as f:
-        json.dump(users, f, indent=4)
-    return {"success": True}
+    try:
+        users = get_users()
+        if user.email in users:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        if not validate_email_format(user.email):
+            raise HTTPException(status_code=400, detail="Invalid email format")
+        hashed = hash_password(user.password)
+        users[user.email] = {
+            "username": user.username,
+            "password": hashed.decode('utf-8'),
+            "role": "user",
+            "created_at": datetime.now().isoformat()
+        }
+        with open(USERS_FILE, "w") as f:
+            json.dump(users, f, indent=4)
+        return {"success": True, "message": "User created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.post("/login")
 def login(creds: LoginCreds):
-    users = get_users()
-    if creds.email not in users:
-        raise HTTPException(status_code=400, detail="Email not found")
-    stored_password = users[creds.email]['password']
-    if isinstance(stored_password, str):
-        stored_password = stored_password.encode('utf-8')
-    if verify_password(creds.password, stored_password):
-        return {"role": users[creds.email]['role'], "username": users[creds.email]['username']}
-    raise HTTPException(status_code=400, detail="Incorrect password")
+    try:
+        users = get_users()
+        if creds.email not in users:
+            raise HTTPException(status_code=400, detail="Email not found")
+        stored_password = users[creds.email]['password']
+        if isinstance(stored_password, str):
+            stored_password = stored_password.encode('utf-8')
+        if verify_password(creds.password, stored_password):
+            return {
+                "success": True,
+                "role": users[creds.email]['role'], 
+                "username": users[creds.email]['username'],
+                "email": creds.email
+            }
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/products")
 def get_products():
